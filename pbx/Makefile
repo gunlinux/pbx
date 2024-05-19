@@ -7,9 +7,7 @@ build:
 buildc:
 	BUILDKIT_PROGRESS=plain docker build --tag="$(NAME):$(VERSION)" . --no-cache
 run:
-	- docker container rm $(NAME)
-	docker run -d --name $(NAME) "$(NAME):$(VERSION)"
-	docker logs  $(NAME)
+	docker run -d --name $(NAME) "$(NAME):$(VERSION)
 
 shell:
 	docker exec -it $(NAME) /bin/sh
