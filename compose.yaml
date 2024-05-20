@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  asterisk:
+    build:
+      context: ./asterisk
+    image: asterisk:0.0.1
+    volumes:
+      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_etc:/etc/asterisk
+
+  freepbx:
+    build:
+      context: ./freepbx
+
+    volumes:
+      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_etc:/etc/asterisk
+    depends_on:
+      - asterisk
+
+  db:
+    build:
+      context: ./db
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_USER=root
+      - MARIADB_PASSWORD=123123
+    ports:
+      - "3306:3306"
+
+volumes:
+  asterisk_etc:
+  asterisk_run:
+
