@@ -1,5 +1,5 @@
 # Используем официальный образ Debian как базовый
-FROM asterisk:0.0.1 AS builder
+FROM asterisk:0.0.3 AS builder
 
 # Устанавливаем необходимые пакеты
 RUN apt-get update && apt-get install -y --no-install-recommends  \

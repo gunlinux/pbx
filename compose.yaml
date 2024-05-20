@@ -5,7 +5,7 @@ services:
   asterisk:
     build:
       context: ./asterisk
-    image: asterisk:0.0.1
+    image: asterisk:0.0.3
     volumes:
       - asterisk_run:/var/lib/run/asterisk
       - asterisk_etc:/etc/asterisk
