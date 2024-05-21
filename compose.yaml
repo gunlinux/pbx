@@ -10,6 +10,14 @@ services:
       - asterisk_run:/var/lib/run/asterisk
       - asterisk_etc:/etc/asterisk
 
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=123123
+    ports:
+      - "3306:3306"
+
   freepbx:
     build:
       context: ./freepbx
@@ -20,22 +28,12 @@ services:
       - freepbx_www:/var/www/html
     depends_on:
       - asterisk
+      - db
     ports:
       - 9000:9000
-    command: ["/usr/sbin/php-fpm7.4", "-F","-R"] # /usr/bin/php-fpm7.4"] # , "-S", "0.0.0.0:9000"]
-
-  db:
-    build:
-      context: ./db
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MARIADB_RANDOM_ROOT_PASSWORD=yes
-      - MARIADB_USER=root
-      - MARIADB_PASSWORD=123123
-    ports:
-      - "3306:3306"
-
+    env_file:
+      - .env
+    command: ["/usr/sbin/php-fpm7.4"]
   nginx:
     image: nginx:alpine
     volumes:
@@ -44,7 +42,7 @@ services:
     ports:
       - 80:80
     depends_on:
-      - freepbx
+      - freepbx 
 
 
 volumes:

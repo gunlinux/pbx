@@ -1,5 +1,5 @@
 # Используем официальный образ Debian как базовый
-FROM debian:latest as build-asterisk
+FROM debian:12 as build-asterisk
 
 # Устанавливаем необходимые пакеты
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,7 +36,7 @@ RUN ./configure --with-jansson-bundled \
     && ldconfig
 RUN ls -ld /lib64/ /lib/
 RUN ls -l /lib64/ /lib/
-FROM debian:latest
+FROM debian:12
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl3 \
