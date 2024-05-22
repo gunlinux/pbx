@@ -64,7 +64,7 @@ COPY sip.conf /etc/asterisk/sip.conf
 # Открываем необходимые порты
 EXPOSE 5060/udp 5060/tcp 10000-20000/udp
 
-FROM debian:latest
+FROM debian:12
 
 WORKDIR /opt/
 RUN apt-get update && apt-get install -y --no-install-recommends  \
@@ -89,4 +89,20 @@ COPY --from=builder /opt/dump.sql  /opt/dump.sql
 ARG UID=10002
 RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk 
 
-CMD bash
+RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 0.0.0.0:9000|g'  /etc/php/7.4/fpm/pool.d/www.conf && \
+  sed -i 's/group = www-data/group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
+  sed -i 's/user = www-data/user = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
+  sed -i 's/;isten.owner = www-data/listen.owner = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+  sed -i 's/listen.group = www-data/listen.group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+  sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php/7.4/fpm/pool.d/www.conf && \
+  sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf
+RUN echo "<?php phpinfo();?>" >  /var/www/html/t.php
+RUN apt-get install netcat-traditional  mariadb-client -y
+COPY prelaunch.sh .
+expose  9000
+#cmd ["/usr/bin/php7.4"]
+#cmd "/bin/sh"
+
+#ENTRYPOINT ["/bin/bash"]
+
+ENTRYPOINT ["./prelaunch.sh"]
