@@ -10,13 +10,29 @@ services:
       - asterisk_run:/var/lib/run/asterisk
       - asterisk_etc:/etc/asterisk
 
-  db:
-    image: mariadb
+  mariadb:
+    image: mariadb:11.1.2
+    hostname: mariadb
     restart: always
+    env_file:
+      - .env
     environment:
-      - MARIADB_ROOT_PASSWORD=123123
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     ports:
       - "3306:3306"
+    volumes:
+      - ./mariadb/my-resolve.cnf:/etc/mysql/mariadb.conf.d/my-resolve.cnf:ro
+      #- db:/var/lib/mysql
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      - ADMINER_DEFAULT_SERVER=mariadb
+    depends_on:
+      - mariadb 
 
   freepbx:
     build:
@@ -28,7 +44,7 @@ services:
       - freepbx_www:/var/www/html
     depends_on:
       - asterisk
-      - db
+      - mariadb 
     ports:
       - 9000:9000
     env_file:
@@ -49,4 +65,5 @@ volumes:
   asterisk_etc:
   asterisk_run:
   freepbx_www:
+  db:
 
