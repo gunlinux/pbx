@@ -54,7 +54,8 @@ RUN /usr/sbin/safe_asterisk  & sleep 1 &&  \
   fwconsole  setting SIGNATURECHECK 0 &&\
   bash clear.sh
 
-RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 --all-databases > /opt/dump.sql
+RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 asterisk > /opt/dump.sql
+RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 asteriskcdrdb > /opt/dumpcdr.sql
 
 
 # Копируем конфигурационные файлы в контейнер
@@ -79,20 +80,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
 
 # PBX HELL HERE
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
-
+COPY --from=builder /usr/sbin/fwconsole /usr/sbin/fwconsole
 COPY --from=builder /etc/asterisk  /etc/asterisk
 COPY --from=builder /var/www/html   /var/www/html
 COPY --from=builder /etc/freepbx.conf /etc/freepbx.conf
 COPY --from=builder /etc/freepbx.conf /etc/freepbx.conf
 COPY --from=builder /opt/dump.sql  /opt/dump.sql
+COPY --from=builder /opt/dumpcdr.sql  /opt/dumpcdr.sql
+COPY --from=builder /usr/sbin/asterisk /usr/sbin/asterisk
+COPY --from=builder /usr/lib/asterisk /usr/lib/asterisk
 
 ARG UID=10002
-RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk 
+RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk  && \
+  mkdir -p /var/log/asterisk /var/spool/asterisk && \
+  touch /var/log/asterisk/freepbx.log  &&  \
+  chown -R asterisk:asterisk /var/log/asterisk /var/spool/asterisk /var/log/asterisk/freepbx.log 
 
 RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 0.0.0.0:9000|g'  /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i 's/group = www-data/group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
   sed -i 's/user = www-data/user = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
-  sed -i 's/;isten.owner = www-data/listen.owner = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+  sed -i 's/listen.owner = www-data/listen.owner = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i 's/listen.group = www-data/listen.group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf
@@ -104,5 +111,9 @@ expose  9000
 #cmd "/bin/sh"
 
 #ENTRYPOINT ["/bin/bash"]
+COPY --from=builder /lib/asterisk /lib/asterisk
+COPY --from=builder /lib/libasterisk* /lib/    
+
+RUN apt-get install vim -y
 
 ENTRYPOINT ["./prelaunch.sh"]

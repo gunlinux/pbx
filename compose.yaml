@@ -2,38 +2,57 @@ version: '3.8'
 
 services:
 
+  mariadb:
+    image: mariadb:11.1.2
+    hostname: mariadb
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb/my-resolve.cnf:/etc/mysql/mariadb.conf.d/my-resolve.cnf:ro
+      - db:/var/lib/mysql
   asterisk:
+    hostname: asterisk
     build:
       context: ./asterisk
     image: asterisk:0.0.3
+    ports:
+      - 5038:5038
     volumes:
-      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
 
-  db:
-    image: mariadb
+  adminer:
+    image: adminer:4.8.1
     restart: always
-    environment:
-      - MARIADB_ROOT_PASSWORD=123123
     ports:
-      - "3306:3306"
+      - 8080:8080
+    environment:
+      - ADMINER_DEFAULT_SERVER=mariadb
+    depends_on:
+      - mariadb 
 
   freepbx:
     build:
       context: ./freepbx
 
     volumes:
-      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
       - freepbx_www:/var/www/html
     depends_on:
       - asterisk
-      - db
+      - mariadb 
     ports:
       - 9000:9000
     env_file:
       - .env
     command: ["/usr/sbin/php-fpm7.4"]
+
   nginx:
     image: nginx:alpine
     volumes:
@@ -49,4 +68,5 @@ volumes:
   asterisk_etc:
   asterisk_run:
   freepbx_www:
+  db:
 
