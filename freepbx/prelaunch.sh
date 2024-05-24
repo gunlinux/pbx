@@ -1,6 +1,8 @@
 #!/bin/bash
-export DB_HOST=db
-export DB_PORT=3306
+export DB_HOST=${MARIADB_HOST}
+export DB_USER="root"
+export DB_PORT=${MARIADB_PORT}
+export DB_PASSWORD=${MARIADB_ROOT_PASSWORD}
 
 echo 'Waiting database to start...'
 
@@ -15,7 +17,7 @@ echo  ${MARIADB_USER}
 
 database_exists() {
     local database_name="$1"
-    local output=$(mysql -u "$DB_USER" -h db -p"${DB_PASSWORD}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$database_name'")
+    local output=$(mysql -u "$DB_USER" -h ${DB_HOST} -p"${DB_PASSWORD}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$database_name'")
     if [ -z "$output" ]; then
         echo "false"
     else
@@ -26,9 +28,10 @@ database_exists() {
 # Check if the 'asterisk' database exists
 if [ "$(database_exists 'asterisk')" == "false" ]; then
     echo "Database 'asterisk' does not exist. Loading dump..."
-
+    echo "connection ${DB_HOST} ${DB_USER} ${DB_PASSWORD}"
     # Load the database dump
-    mysql -h db -u "$DB_USER" -p"${DB_PASSWORD}" < /opt/dump.sql
+    mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" -e "CREATE DATABASE asterisk;" 
+    mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" asterisk < /opt/dump.sql
 
     echo "Database dump loaded successfully."
 else

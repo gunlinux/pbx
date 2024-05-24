@@ -54,7 +54,7 @@ RUN /usr/sbin/safe_asterisk  & sleep 1 &&  \
   fwconsole  setting SIGNATURECHECK 0 &&\
   bash clear.sh
 
-RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 --all-databases > /opt/dump.sql
+RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 asterisk > /opt/dump.sql
 
 
 # Копируем конфигурационные файлы в контейнер
@@ -79,7 +79,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
 
 # PBX HELL HERE
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
-
+COPY --from=builder /usr/sbin/fwconsole /usr/sbin/fwconsole
 COPY --from=builder /etc/asterisk  /etc/asterisk
 COPY --from=builder /var/www/html   /var/www/html
 COPY --from=builder /etc/freepbx.conf /etc/freepbx.conf
