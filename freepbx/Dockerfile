@@ -92,9 +92,9 @@ COPY --from=builder /usr/lib/asterisk /usr/lib/asterisk
 
 ARG UID=10002
 RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk  && \
-  mkdir -p /var/log/asterisk /var/spool/asterisk && \
+  mkdir -p /var/log/asterisk /var/spool/asterisk /var/lib/asterisk /var/lib/asterisk/sounds '&& \
   touch /var/log/asterisk/freepbx.log  &&  \
-  chown -R asterisk:asterisk /var/log/asterisk /var/spool/asterisk /var/log/asterisk/freepbx.log 
+  chown -R asterisk:asterisk /var/log/asterisk /var/spool/asterisk /var/log/asterisk/freepbx.log  /var/lib/asterisk
 
 RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 0.0.0.0:9000|g'  /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i 's/group = www-data/group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
