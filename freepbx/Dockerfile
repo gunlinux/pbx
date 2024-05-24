@@ -92,7 +92,7 @@ COPY --from=builder /usr/lib/asterisk /usr/lib/asterisk
 
 ARG UID=10002
 RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk  && \
-  mkdir -p /var/log/asterisk /var/spool/asterisk /var/lib/asterisk && \
+  mkdir -p /var/log/asterisk /var/spool/asterisk /var/lib/asterisk /var/lib/asterisk/sounds '&& \
   touch /var/log/asterisk/freepbx.log  &&  \
   chown -R asterisk:asterisk /var/log/asterisk /var/spool/asterisk /var/log/asterisk/freepbx.log  /var/lib/asterisk
 
