@@ -113,7 +113,6 @@ expose  9000
 #ENTRYPOINT ["/bin/bash"]
 COPY --from=builder /lib/asterisk /lib/asterisk
 COPY --from=builder /lib/libasterisk* /lib/    
-/var/lib/asterisk/.pm2
 
 RUN apt-get install vim -y
 
