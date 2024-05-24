@@ -16,11 +16,14 @@ services:
       - ./mariadb/my-resolve.cnf:/etc/mysql/mariadb.conf.d/my-resolve.cnf:ro
       - db:/var/lib/mysql
   asterisk:
+    hostname: asterisk
     build:
       context: ./asterisk
     image: asterisk:0.0.3
+    ports:
+      - 5038:5038
     volumes:
-      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
 
   adminer:
@@ -38,7 +41,7 @@ services:
       context: ./freepbx
 
     volumes:
-      - asterisk_run:/var/lib/run/asterisk
+      - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
       - freepbx_www:/var/www/html
     depends_on:
@@ -49,6 +52,7 @@ services:
     env_file:
       - .env
     command: ["/usr/sbin/php-fpm7.4"]
+
   nginx:
     image: nginx:alpine
     volumes:
