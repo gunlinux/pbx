@@ -47,7 +47,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 #COPY --from=build-asterisk /lib64/asterisk/ /lib64/asterisk
 COPY --from=build-asterisk /lib/asterisk/ /lib/asterisk
-COPY --from=build-asterisk /lib/libasterisk* /lib/
 COPY --from=build-asterisk /var/spool/asterisk /var/spool/asterisk
 COPY --from=build-asterisk /etc/asterisk /etc/asterisk
 COPY --from=build-asterisk /usr/lib/asterisk /user/lib/asterisk
