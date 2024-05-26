@@ -1,5 +1,5 @@
 # Используем официальный образ Debian как базовый
-FROM asterisk:0.0.3 AS builder
+FROM asterisk:0.0.12 AS builder
 
 # Устанавливаем необходимые пакеты
 RUN apt-get update && apt-get install -y --no-install-recommends  \
@@ -54,18 +54,11 @@ RUN /usr/sbin/safe_asterisk  & sleep 1 &&  \
   fwconsole  setting SIGNATURECHECK 0 &&\
   bash clear.sh
 
-RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 asterisk > /opt/dump.sql
-RUN mariadbd --user root & sleep 15 && mysqldump -u root -p123123 asteriskcdrdb > /opt/dumpcdr.sql
+RUN mariadbd --user root & sleep 15 && \
+  mysqldump -u root -p123123 asterisk > /opt/dump.sql && \
+  mysqldump -u root -p123123 asteriskcdrdb > /opt/dumpcdr.sql
 
-
-# Копируем конфигурационные файлы в контейнер
-COPY extensions.conf /etc/asterisk/extensions.conf
-COPY sip.conf /etc/asterisk/sip.conf
-
-# Открываем необходимые порты
-EXPOSE 5060/udp 5060/tcp 10000-20000/udp
-
-FROM debian:12
+FROM debian:12.5-slim
 
 WORKDIR /opt/
 RUN apt-get update && apt-get install -y --no-install-recommends  \
@@ -76,25 +69,33 @@ COPY phphelper.sh  .
 RUN bash phphelper.sh && rm phphelper.sh
 RUN apt-get update && apt-get install -y --no-install-recommends  \
     php7.4 php7.4-mysql php7.4-cli php7.4-common php7.4-imap php7.4-ldap php7.4-xml php7.4-fpm php7.4-curl php7.4-mbstring php7.4-zip php7.4-gd php7.4-gettext php7.4-xml php7.4-json \
-    cron
+    cron netcat-traditional  mariadb-client \
+    vim
 
 # PBX HELL HERE
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
-COPY --from=builder /usr/sbin/fwconsole /usr/sbin/fwconsole
-COPY --from=builder /etc/asterisk  /etc/asterisk
-COPY --from=builder /var/www/html   /var/www/html
-COPY --from=builder /etc/freepbx.conf /etc/freepbx.conf
-COPY --from=builder /etc/freepbx.conf /etc/freepbx.conf
-COPY --from=builder /opt/dump.sql  /opt/dump.sql
-COPY --from=builder /opt/dumpcdr.sql  /opt/dumpcdr.sql
-COPY --from=builder /usr/sbin/asterisk /usr/sbin/asterisk
-COPY --from=builder /usr/lib/asterisk /usr/lib/asterisk
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
 
 ARG UID=10002
-RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk  && \
-  mkdir -p /var/log/asterisk /var/spool/asterisk /var/lib/asterisk /var/lib/asterisk/sounds && \
-  touch /var/log/asterisk/freepbx.log  &&  \
-  chown -R asterisk:asterisk /var/log/asterisk /var/spool/asterisk /var/log/asterisk/freepbx.log  /var/lib/asterisk
+RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk \
+  && mkdir -p /var/lib/asterisk \
+  && chown asterisk:asterisk /var/lib/asterisk
+
+COPY --chown=asterisk:asterisk --from=builder /etc/freepbx.conf /etc/freepbx.conf
+COPY --chown=asterisk:asterisk --from=builder /etc/asterisk  /etc/asterisk
+COPY --chown=asterisk:asterisk --from=builder /var/www/html  /var/www/html
+COPY --chown=asterisk:asterisk --from=builder /var/www/html  /var/www/html
+
+# db duimps
+COPY --chown=asterisk:asterisk --from=builder /opt/dump.sql  /opt/dump.sql
+COPY --chown=asterisk:asterisk --from=builder /opt/dumpcdr.sql  /opt/dumpcdr.sql
+# binaries
+COPY --chown=asterisk:asterisk --from=builder /usr/sbin/fwconsole /usr/sbin/fwconsole
+COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk /usr/sbin/asterisk
+COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/asterisk
+COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
+#COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
+#COPY --chown=asterisk:asterisk --from=builder /lib/asterisk /lib/asterisk
+COPY --chown=asterisk:asterisk --from=builder /lib/libasterisk* /lib/
 
 RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 0.0.0.0:9000|g'  /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i 's/group = www-data/group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \ 
@@ -103,17 +104,8 @@ RUN sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 0.0.0.0:9000|g'  /etc/p
   sed -i 's/listen.group = www-data/listen.group = asterisk/g' /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php/7.4/fpm/pool.d/www.conf && \
   sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf
-RUN echo "<?php phpinfo();?>" >  /var/www/html/t.php
-RUN apt-get install netcat-traditional  mariadb-client -y
+
 COPY prelaunch.sh .
 expose  9000
-#cmd ["/usr/bin/php7.4"]
-#cmd "/bin/sh"
-
-#ENTRYPOINT ["/bin/bash"]
-COPY --from=builder /lib/asterisk /lib/asterisk
-COPY --from=builder /lib/libasterisk* /lib/    
-
-RUN apt-get install vim -y
 
 ENTRYPOINT ["./prelaunch.sh"]

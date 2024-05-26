@@ -19,7 +19,7 @@ services:
     hostname: asterisk
     build:
       context: ./asterisk
-    image: asterisk:0.0.3
+    image: asterisk:0.0.12
     ports:
       - 5038:5038
     volumes:
