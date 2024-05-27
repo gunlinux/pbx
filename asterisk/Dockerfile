@@ -2,7 +2,7 @@
 FROM alpine:3.18 as build-asterisk
 
 ENV ASTERISK_MODULES_ENABLE BETTER_BACKTRACES codec_opus app_macro res_config_mysql format_mp3 chan_sip pbx_ael cdr_odbc app_mysql
-ENV ASTERISK_MODULES_DISABLE BUILD_NATIVE
+ENV ASTERISK_MODULES_DISABLE BUILD_NATIVE app_adsiprog app_alarmreceiver  app_externalivr app_festival app_getcpeid app_ivrdemo app_jack app_meetme app_osplookup app_page app_privacy app_skel app_zapateller cdr_csv cdr_radius cdr_tds  cdr_sqlite3_custom cdr_pgsql chan_alsa chan_dahdi chan_console chan_mgcp chan_unistim codec_dahdi pbx_ael pbx_dundi pbx_lua res_adsi res_ael_share res_config_pgsql res_snmp res_timing_dahdi res_speech
 ENV ASTERISK_CATEGORY_DISABLE MENUSELECT_CORE_SOUNDS MENUSELECT_MOH MENUSELECT_EXTRA_SOUNDS
 
 RUN set -ex; apk update \
@@ -40,7 +40,7 @@ RUN curl -o asterisk-18-current.tar.gz http://downloads.asterisk.org/pub/telepho
 WORKDIR /usr/src/asterisk
 
 RUN ./configure --with-pjproject-bundled --with-jansson-bundled --with-crypto --with-ssl=ssl --with-srtp
-COPY  patches/* .
+COPY  patches/* ./
 RUN patch -p1 < ./10-musl-mutex-init.patch
 RUN patch -p1 < ./20-musl-astmm-fix.patch
 RUN patch -p1 < ./30-asterisk-mariadb.patch
