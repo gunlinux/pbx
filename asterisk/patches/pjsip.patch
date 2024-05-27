@@ -1,0 +1,12 @@
+--- third-party/pjproject/source/pjlib/include/pj/config_site.h
++++ third-party/pjproject/source/pjlib/include/pj/config_site.h_
+@@ -8,9 +8,6 @@
+  * Since both pjproject and asterisk source files will include config_site.h,
+  * we need to make sure that only pjproject source files include asterisk_malloc_debug.h.
+  */
+-#if !defined(_ASTERISK_ASTMM_H)
+-#include "asterisk_malloc_debug.h"
+-#endif
+
+ /*
+  * Defining PJMEDIA_HAS_SRTP to 0 does NOT disable Asterisk's ability to use srtp.
