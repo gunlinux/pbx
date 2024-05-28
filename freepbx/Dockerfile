@@ -56,7 +56,8 @@ RUN /usr/sbin/safe_asterisk & sleep 1 &&  \
   fwconsole  setting SIGNATURECHECK 0 &&\
   bash clear.sh && \
   mysqldump -u root -p123123 asterisk > /opt/dump.sql && \
-  mysqldump -u root -p123123 asteriskcdrdb > /opt/dumpcdr.sql && rm -rf /usr/src/*
+  mysqldump -u root -p123123 asteriskcdrdb > /opt/dumpcdr.sql && \
+  rm -rf /usr/src/*  /var/www/html/admin/modules/_cache/*
 #
 FROM alpine:3.14 
 #
