@@ -22,11 +22,7 @@ RUn curl -fsSL https://unofficial-builds.nodejs.org/download/release/v18.16.0/no
 RUN wget http://mirror.freepbx.org/modules/packages/freepbx/7.4/freepbx-16.0-latest.tgz && \
 tar xfz freepbx-16.0-latest.tgz  && ln -s freepbx-16.0 freepbx
 WORKDIR /usr/src/freepbx
-#ARG UID=10002
-#RUN addgroup -S asterisk -g "${UID}" && adduser -S asterisk -G asterisk -u "${UID}" -h /var/lib/asterisk &&  addgroup asterisk audio &&  addgroup asterisk dialout
 
-#RUN groupadd asterisk -g "${UID}" && useradd -u "${UID}" -r -d /var/lib/asterisk -g asterisk asterisk && usermod -aG audio,dialout asterisk  && chown -R asterisk:asterisk /etc/asterisk  /var/lib/asterisk  /var/lib/run/asterisk
-#
 #COPY asterisk.conf /etc/asterisk/asterisk.conf
 #
 #COPY pbx.sh  .
@@ -52,7 +48,6 @@ RUN /usr/sbin/safe_asterisk & sleep 1 &&  \
     fwconsole ma upgradeall && \
    fwconsole ma install core && \
    fwconsole ma install framework && \
-#  # asterisk -G asterisk -U asterisk -C /etc/asterisk/asterisk.conf & sleep 6 && \
     fwconsole ma downloadinstall api paging parking queueprio weakpasswords callwaiting languages findmefollow backup bulkhandler queues ringgroups timeconditions ivr cel configedit asteriskinfo certman ucp webrtc sipsettings announcement blacklist  && \
  fwconsole ma installlocal && \
   fwconsole ma download customcontexts &&\
@@ -98,9 +93,7 @@ COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk /usr/sbin/aster
 COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/asterisk
 COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
 COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
-#COPY --chown=asterisk:asterisk --from=builder /lib/asterisk /lib/asterisk
-COPY --chown=asterisk:asterisk --from=builder /lib/libasterisk* /lib/
-#
+
 RUN sed -i 's/group = www-data/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
   sed -i 's/user = www-data/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
   sed -i 's/listen.owner = www-data/listen.owner = asterisk/g' /etc/php7/php-fpm.d/www.conf && \
@@ -109,6 +102,7 @@ RUN sed -i 's/group = www-data/group = asterisk/g' /etc/php7/php-fpm.d/www.conf 
   sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php7/php-fpm.conf
 #
 COPY prelaunch.sh .
+
 expose  9000
 #
 ENTRYPOINT ["./prelaunch.sh"]

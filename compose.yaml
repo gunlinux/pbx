@@ -10,6 +10,7 @@ services:
       - .env
     environment:
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_HOST=${MARIADB_HOST}
     ports:
       - "3307:3306"
     volumes:
@@ -39,7 +40,6 @@ services:
   freepbx:
     build:
       context: ./freepbx
-
     volumes:
       - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
