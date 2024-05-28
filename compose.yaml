@@ -12,7 +12,7 @@ services:
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
       - MARIADB_HOST=${MARIADB_HOST}
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - ./mariadb/my-resolve.cnf:/etc/mysql/mariadb.conf.d/my-resolve.cnf:ro
       - db:/var/lib/mysql
@@ -22,7 +22,7 @@ services:
       context: ./asterisk
     image: asterisk:0.1.2
     ports:
-      - 5039:5038
+      - 5038:5038
     volumes:
       - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
@@ -38,6 +38,7 @@ services:
       - mariadb 
 
   freepbx:
+    hostname: freepbx 
     build:
       context: ./freepbx
     volumes:
@@ -48,10 +49,10 @@ services:
       - asterisk
       - mariadb 
     ports:
-      - 9001:9000
+      - 9000:9000
     env_file:
       - .env
-    #command: ["/usr/sbin/php-fpm7.4"]
+    command: ["/usr/sbin/php-fpm7"]
 
   nginx:
     image: nginx:alpine

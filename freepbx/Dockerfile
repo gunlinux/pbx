@@ -94,15 +94,16 @@ COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/ast
 COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
 COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
 
-RUN sed -i 's/group = www-data/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
-  sed -i 's/user = www-data/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
-  sed -i 's/listen.owner = www-data/listen.owner = asterisk/g' /etc/php7/php-fpm.d/www.conf && \
-  sed -i 's/listen.group = www-data/listen.group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \
+RUN sed -i 's/group = nobody/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
+  sed -i 's/user = nobody/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
+  sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/g' /etc/php7/php-fpm.d/www.conf && \ 
+  sed -i 's/;listen.owner = nobody/listen.owner = asterisk/g' /etc/php7/php-fpm.d/www.conf && \
+  sed -i 's/;listen.group = nobody/listen.group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \
   sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" /etc/php7/php-fpm.d/www.conf && \
   sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php7/php-fpm.conf
 #
 COPY prelaunch.sh .
-
+COPY logging.conf /etc/php7/php-fpm.d/
 expose  9000
 #
 ENTRYPOINT ["./prelaunch.sh"]
