@@ -99,7 +99,7 @@ COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/ast
 COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
 COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
 #COPY --chown=asterisk:asterisk --from=builder /lib/asterisk /lib/asterisk
-COPY --chown=asterisk:asterisk --from=builder /lib/libasterisk* /lib/
+#COPY --chown=asterisk:asterisk --from=builder /lib/libasterisk* /lib/
 #
 RUN sed -i 's/group = www-data/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
   sed -i 's/user = www-data/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
@@ -109,6 +109,7 @@ RUN sed -i 's/group = www-data/group = asterisk/g' /etc/php7/php-fpm.d/www.conf 
   sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php7/php-fpm.conf
 #
 COPY prelaunch.sh .
+
 expose  9000
 #
 ENTRYPOINT ["./prelaunch.sh"]
