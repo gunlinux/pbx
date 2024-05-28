@@ -39,6 +39,7 @@ if [ "$(database_exists 'asteriskcdrdb')" == "false" ]; then
     mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" -e "CREATE DATABASE asterisk;" 
     mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" -e "CREATE DATABASE asteriskcdrdb;" 
     mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" asterisk < /opt/dump.sql
+    mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" asterisk < /opt/temp.sql
     mysql -h ${DB_HOST} -u "$DB_USER" -p"${DB_PASSWORD}" asteriskcdrdb < /opt/dumpcdr.sql
 
     echo "Database dump loaded successfully."

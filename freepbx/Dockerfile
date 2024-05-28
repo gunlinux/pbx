@@ -105,6 +105,7 @@ RUN sed -i 's/group = nobody/group = asterisk/g' /etc/php7/php-fpm.d/www.conf &&
 #
 COPY prelaunch.sh .
 COPY logging.conf /etc/php7/php-fpm.d/
+COPY temp.sql /opt/
 COPY --chown=asterisk:asterisk manager.conf /etc/asterisk/
 expose  9000
 #
