@@ -11,7 +11,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./mariadb/my-resolve.cnf:/etc/mysql/mariadb.conf.d/my-resolve.cnf:ro
       - db:/var/lib/mysql
@@ -19,9 +19,9 @@ services:
     hostname: asterisk
     build:
       context: ./asterisk
-    image: asterisk:0.1.1
+    image: asterisk:0.1.2
     ports:
-      - 5038:5038
+      - 5039:5038
     volumes:
       - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
@@ -48,10 +48,10 @@ services:
       - asterisk
       - mariadb 
     ports:
-      - 9000:9000
+      - 9001:9000
     env_file:
       - .env
-    command: ["/usr/sbin/php-fpm7.4"]
+    #command: ["/usr/sbin/php-fpm7.4"]
 
   nginx:
     image: nginx:alpine

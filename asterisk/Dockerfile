@@ -1,5 +1,5 @@
 # Используем официальный образ Debian как базовый
-FROM alpine:3.18 as build-asterisk
+FROM alpine:3.14 as build-asterisk
 
 ENV ASTERISK_MODULES_ENABLE BETTER_BACKTRACES codec_opus app_macro res_config_mysql format_mp3 chan_sip pbx_ael cdr_odbc app_mysql
 ENV ASTERISK_MODULES_DISABLE BUILD_NATIVE app_adsiprog app_alarmreceiver  app_externalivr app_festival app_getcpeid app_ivrdemo app_jack app_meetme app_osplookup app_page app_privacy app_skel app_zapateller cdr_csv cdr_radius cdr_tds  cdr_sqlite3_custom cdr_pgsql chan_alsa chan_dahdi chan_console chan_mgcp chan_unistim codec_dahdi pbx_ael pbx_dundi pbx_lua res_adsi res_ael_share res_config_pgsql res_snmp res_timing_dahdi res_speech
@@ -60,7 +60,7 @@ RUN  make menuselect/menuselect menuselect-tree menuselect.makeopts && \
   make basic-pbx  && strip /usr/lib/asterisk/modules/* 
 RUN strip /usr/lib/asterisk/modules/* || True
 
-FROM alpine:3.18 
+FROM alpine:3.14
 
 RUN apk update && apk add --no-cache \
     openssl \

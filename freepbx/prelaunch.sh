@@ -11,10 +11,10 @@ sed -i "s/^\(\$amp_conf\['AMPDBPASS'\] = \).*/\1'$DB_PASSWORD';/" $FILE_PATH
 # Update the AMPDBHOST
 sed -i "s/^\(\$amp_conf\['AMPDBHOST'\] = \).*/\1'$DB_HOST';/" $FILE_PATH
 
-
-while ! nc -z $DB_HOST $DB_PORT; do
+# TODO FIX netcat waiting for  mYSQL to launch
+#while ! nc -vz $DB_HOST $DB_PORT; do
     sleep 5
-done
+#done
 
 echo 'Database started'
 
