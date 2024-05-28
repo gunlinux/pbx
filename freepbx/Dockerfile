@@ -93,6 +93,7 @@ COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk /usr/sbin/aster
 COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/asterisk
 COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
 COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
+COPY --chown=asterisk:asterisk --from=builder /usr/lib/libasterisk* /usr/lib/
 
 RUN sed -i 's/group = nobody/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
   sed -i 's/user = nobody/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
@@ -104,6 +105,7 @@ RUN sed -i 's/group = nobody/group = asterisk/g' /etc/php7/php-fpm.d/www.conf &&
 #
 COPY prelaunch.sh .
 COPY logging.conf /etc/php7/php-fpm.d/
+COPY --chown=asterisk:asterisk manager.conf /etc/asterisk/
 expose  9000
 #
 ENTRYPOINT ["./prelaunch.sh"]
