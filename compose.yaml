@@ -23,6 +23,7 @@ services:
     image: asterisk:0.1.2
     ports:
       - 5038:5038
+      - 5039:5039
     volumes:
       - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
@@ -52,6 +53,9 @@ services:
       - 9000:9000
     env_file:
       - .env
+    environment:
+      - ASTERISK_CLI_HOST=asterisk
+      - ASTERISK_CLI_PORT=5939
     command: ["/usr/sbin/php-fpm7"]
 
   nginx:

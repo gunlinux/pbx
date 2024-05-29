@@ -90,11 +90,12 @@ COPY --chown=asterisk:asterisk --from=builder /opt/dump.sql  /opt/dump.sql
 COPY --chown=asterisk:asterisk --from=builder /opt/dumpcdr.sql  /opt/dumpcdr.sql
 ## binaries
 COPY --chown=asterisk:asterisk --from=builder /usr/sbin/fwconsole /usr/sbin/fwconsole
-COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk /usr/sbin/asterisk
+#COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk_cli /usr/sbin/asterisk
 COPY --chown=asterisk:asterisk --from=builder /var/spool/asterisk /var/spool/asterisk
 COPY --chown=asterisk:asterisk --from=builder /var/log/asterisk /var/log/asterisk
-COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
-COPY --chown=asterisk:asterisk --from=builder /usr/lib/libasterisk* /usr/lib/
+#COPY --chown=asterisk:asterisk --from=builder /usr/lib/asterisk /usr/lib/asterisk
+#COPY --chown=asterisk:asterisk --from=builder /usr/lib/libasterisk* /usr/lib/
+COPY --chown=asterisk:asterisk --from=builder /usr/sbin/asterisk_cli /usr/sbin/asterisk
 
 RUN sed -i 's/group = nobody/group = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
   sed -i 's/user = nobody/user = asterisk/g' /etc/php7/php-fpm.d/www.conf && \ 
