@@ -1,16 +1,7 @@
 MYSQL_ROOT_PASSWORD=123123
+mkdir -p /run/mysqld/
+mariadb-install-db --datadir=./data --user=root
+mariadbd --datadir=./data --user root &
+sleep 5
 
-mkdir -p /run/mysqld
-mariadbd --user root  &
-sleep 15 
-mysql_secure_installation <<EOF
-
-y
-$MYSQL_ROOT_PASSWORD
-$MYSQL_ROOT_PASSWORD
-y
-y
-y
-y
-EOF
-
+mysqladmin -u root password  123123

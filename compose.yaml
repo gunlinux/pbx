@@ -10,6 +10,7 @@ services:
       - .env
     environment:
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_HOST=${MARIADB_HOST}
     ports:
       - "3306:3306"
     volumes:
@@ -19,7 +20,7 @@ services:
     hostname: asterisk
     build:
       context: ./asterisk
-    image: asterisk:0.0.12
+    image: asterisk:0.1.2
     ports:
       - 5038:5038
     volumes:
@@ -37,9 +38,9 @@ services:
       - mariadb 
 
   freepbx:
+    hostname: freepbx 
     build:
       context: ./freepbx
-
     volumes:
       - asterisk_run:/var/run/asterisk
       - asterisk_etc:/etc/asterisk
@@ -51,7 +52,7 @@ services:
       - 9000:9000
     env_file:
       - .env
-    command: ["/usr/sbin/php-fpm7.4"]
+    command: ["/usr/sbin/php-fpm7"]
 
   nginx:
     image: nginx:alpine
