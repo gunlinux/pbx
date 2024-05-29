@@ -60,6 +60,13 @@ RUN  make menuselect/menuselect menuselect-tree menuselect.makeopts && \
   make basic-pbx  && strip /usr/lib/asterisk/modules/* 
 RUN strip /usr/lib/asterisk/modules/* || True
 
+# собираем asterisk_cli
+RUN apk add go
+WORKDIR /usr/src/
+COPY ./asterisk_cli ./asterisk_cli
+WORKDIR /usr/src/asterisk_cli
+RUN make
+
 FROM alpine:3.14
 
 RUN apk update && apk add --no-cache \
@@ -84,6 +91,11 @@ COPY --chown=asterisk:asterisk --from=build-asterisk /var/log/asterisk/ /var/log
 COPY --chown=asterisk:asterisk --from=build-asterisk /usr/lib/libasterisk* /usr/lib/
 COPY --chown=asterisk:asterisk --from=build-asterisk /usr/sbin/asterisk /usr/sbin/asterisk
 COPY --chown=asterisk:asterisk --from=build-asterisk /usr/sbin/safe_asterisk /usr/sbin/safe_asterisk
-COPY --chown=asterisk:asterisk asterisk.conf /etc/asterisk/asterisk.conf
+COPY --chown=asterisk:asterisk --from=build-asterisk /usr/src/asterisk_cli/server/server  /usr/sbin/asterisk_cli_server
+COPY --chown=asterisk:asterisk --from=build-asterisk /usr/src/asterisk_cli/client/client /usr/sbin/asterisk_cli
 
+COPY --chown=asterisk:asterisk asterisk.conf /etc/asterisk/asterisk.conf
+COPY prelaunch.sh .
+
+ENTRYPOINT ["./prelaunch.sh"]
 CMD ["/usr/sbin/safe_asterisk"]
